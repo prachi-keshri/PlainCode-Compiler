@@ -110,6 +110,7 @@ void testDisplayStatement() {
     assert(ast->children[0]->children[0]->value == "42");
 }
 
+
 void expectSyntaxError(
     const std::vector<Token>& tokens,
     const std::string& testName) {
@@ -120,11 +121,22 @@ void expectSyntaxError(
         std::cerr << "FAILED: " << testName
                   << " was accepted\n";
         assert(false);
-    } catch (const std::runtime_error&) {
+    } catch (const std::runtime_error& error) {
+        const std::string message = error.what();
+
+        if (message.find("line ") == std::string::npos ||
+            message.find("column ") == std::string::npos) {
+            std::cerr << "FAILED: " << testName
+                      << " has no line/column information: "
+                      << message << '\n';
+            assert(false);
+        }
+
         std::cout << "PASSED: " << testName
-                  << " rejected\n";
+                  << " rejected with location information\n";
     }
 }
+
 
 void testInvalidSyntax() {
     expectSyntaxError(makeTokens({

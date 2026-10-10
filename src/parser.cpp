@@ -1,8 +1,7 @@
 
 #include "parser.h"
 
-#include <stdexcept>
-#include <string>
+#include <sstream>
 #include <utility>
 
 Parser::Parser(const std::vector<Token>& inputTokens)
@@ -10,8 +9,10 @@ Parser::Parser(const std::vector<Token>& inputTokens)
 
 const Token& Parser::current() const {
     if (pos >= tokens.size()) {
-        throw std::runtime_error("Unexpected end of token stream");
+        throw std::runtime_error(
+            "Syntax error: unexpected end of token stream");
     }
+
     return tokens[pos];
 }
 
@@ -20,14 +21,35 @@ bool Parser::match(TokenType type) {
         ++pos;
         return true;
     }
+
     return false;
 }
 
-Token Parser::consume(TokenType type) {
-    if (pos >= tokens.size() || tokens[pos].type != type) {
-        throw std::runtime_error("Syntax error: unexpected token");
+void Parser::syntaxError(const std::string& expected) const {
+    std::ostringstream message;
+    message << "Syntax error";
+
+    if (pos < tokens.size()) {
+        const Token& token = tokens[pos];
+
+        message << " at line " << token.line
+                << ", column " << token.column
+                << ": expected " << expected
+                << ", but found '" << token.value << "'";
+    } else {
+        message << ": expected " << expected
+                << ", but reached the end of the token stream";
     }
-    return tokens[pos++];
+
+    throw std::runtime_error(message.str());
+}
+
+Token Parser::consume(TokenType type) {
+    if (pos < tokens.size() && tokens[pos].type == type) {
+        return tokens[pos++];
+    }
+
+    syntaxError("the required token");
 }
 
 std::unique_ptr<ASTNode> Parser::parse() {
@@ -44,8 +66,7 @@ std::unique_ptr<ASTNode> Parser::parse() {
         if (pos < tokens.size() &&
             tokens[pos].type != TokenType::END_OF_FILE &&
             !match(TokenType::NEWLINE)) {
-            throw std::runtime_error(
-                "Syntax error: expected end of line");
+            syntaxError("end of line");
         }
     }
 
@@ -59,7 +80,8 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
         consume(TokenType::TO);
 
         auto assignment =
-            std::make_unique<ASTNode>("Assignment", identifier.value);
+            std::make_unique<ASTNode>(
+                "Assignment", identifier.value);
 
         assignment->children.push_back(parseExpression());
         return assignment;
@@ -71,8 +93,7 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
         return display;
     }
 
-    throw std::runtime_error(
-        "Syntax error: expected SET or DISPLAY");
+    syntaxError("SET or DISPLAY");
 }
 
 std::unique_ptr<ASTNode> Parser::parseExpression() {
@@ -141,6 +162,5 @@ std::unique_ptr<ASTNode> Parser::parseFactor() {
         return expression;
     }
 
-    throw std::runtime_error(
-        "Syntax error: expected number, identifier, or '('");
+    syntaxError("a number, identifier, or '('");
 }

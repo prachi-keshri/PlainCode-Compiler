@@ -2,8 +2,12 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <vector>
+#include <cstddef>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 #include "token.h"
 #include "ast.h"
 
@@ -14,11 +18,13 @@ public:
 
 private:
     std::vector<Token> tokens;
-    size_t pos = 0;
+    std::size_t pos = 0;
 
     const Token& current() const;
     bool match(TokenType type);
     Token consume(TokenType type);
+    [[noreturn]] void syntaxError(
+        const std::string& expected) const;
 
     std::unique_ptr<ASTNode> parseStatement();
     std::unique_ptr<ASTNode> parseExpression();
@@ -27,3 +33,4 @@ private:
 };
 
 #endif
+

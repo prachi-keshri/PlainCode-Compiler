@@ -168,12 +168,47 @@ void testInvalidSyntax() {
     }), "Invalid statement");
 }
 
+void testEmptyProgram() {
+    auto tokens = makeTokens({});
+
+    auto ast = parseTokens(tokens);
+
+    assert(ast != nullptr);
+    assert(ast->type == "Program");
+    assert(ast->children.empty());
+
+    std::cout << "PASSED: Empty program\n";
+}
+
+void testMultipleStatements() {
+    auto tokens = makeTokens({
+        {TokenType::SET, "SET", 1, 1},
+        {TokenType::IDENTIFIER, "x", 1, 5},
+        {TokenType::TO, "TO", 1, 7},
+        {TokenType::NUMBER, "10", 1, 10},
+        {TokenType::NEWLINE, "\n", 1, 12},
+        {TokenType::DISPLAY, "DISPLAY", 2, 1},
+        {TokenType::IDENTIFIER, "x", 2, 9}
+    });
+
+    auto ast = parseTokens(tokens);
+
+    assert(ast->type == "Program");
+    assert(ast->children.size() == 2);
+    assert(ast->children[0]->type == "Assignment");
+    assert(ast->children[1]->type == "Display");
+
+    std::cout << "PASSED: Multiple statements\n";
+}
+
 int main() {
     testOperatorPrecedence();
     testParentheses();
     testLeftAssociativity();
     testDisplayStatement();
     testInvalidSyntax();
+    testEmptyProgram();
+    testMultipleStatements();
 
     std::cout << "\nAll parser tests passed!\n";
     return 0;

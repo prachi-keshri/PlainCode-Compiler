@@ -44,13 +44,33 @@ void Parser::syntaxError(const std::string& expected) const {
     throw std::runtime_error(message.str());
 }
 
+
 Token Parser::consume(TokenType type) {
     if (pos < tokens.size() && tokens[pos].type == type) {
         return tokens[pos++];
     }
 
-    syntaxError("the required token");
+    std::string expected;
+
+    switch (type) {
+        case TokenType::SET: expected = "SET"; break;
+        case TokenType::TO: expected = "TO"; break;
+        case TokenType::DISPLAY: expected = "DISPLAY"; break;
+        case TokenType::IDENTIFIER: expected = "an identifier"; break;
+        case TokenType::NUMBER: expected = "a number"; break;
+        case TokenType::PLUS: expected = "+"; break;
+        case TokenType::MINUS: expected = "-"; break;
+        case TokenType::MULTIPLY: expected = "*"; break;
+        case TokenType::DIVIDE: expected = "/"; break;
+        case TokenType::LPAREN: expected = "("; break;
+        case TokenType::RPAREN: expected = ")"; break;
+        case TokenType::NEWLINE: expected = "end of line"; break;
+        case TokenType::END_OF_FILE: expected = "end of file"; break;
+    }
+
+    syntaxError("'" + expected + "'");
 }
+
 
 std::unique_ptr<ASTNode> Parser::parse() {
     auto root = std::make_unique<ASTNode>("Program");

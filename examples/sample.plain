@@ -1,0 +1,5 @@
+
+SET a TO 10
+SET b TO 20
+SET result TO a + b * 2
+DISPLAY result

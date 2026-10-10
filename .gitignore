@@ -1,0 +1,17 @@
+
+# Compiled executables
+*.exe
+*.out
+*.o
+*.obj
+
+# Build directories
+build/
+bin/
+debug/
+
+# VS Code local settings
+.vscode/
+
+# Generated compiler output
+output/

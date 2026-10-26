@@ -1,46 +1,35 @@
-
+#include <exception>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <string>
+#include <vector>
 
-#include "lexer.h"
-#include "parser.h"
 #include "ast.h"
-
-void printAST(const ASTNode* node, int depth = 0) {
-    if (node == nullptr) {
-        return;
-    }
-
-    for (int i = 0; i < depth; ++i) {
-        std::cout << "  ";
-    }
-
-    std::cout << node->type;
-
-    if (!node->value.empty()) {
-        std::cout << ": " << node->value;
-    }
-
-    std::cout << '\n';
-
-    for (const auto& child : node->children) {
-        printAST(child.get(), depth + 1);
-    }
-}
+#include "codegen.h"
+#include "lexer.h"
+#include "optimizer.h"
+#include "parser.h"
+#include "semantic.h"
+#include "tac_generator.h"
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: plaincode <source-file.plain>\n";
+    if (argc != 2 && argc != 3) {
+        std::cerr
+            << "Usage: plaincode <source-file.plain> [output-file.c]\n";
         return 1;
     }
 
-    std::ifstream input(argv[1]);
+    const std::string sourcePath = argv[1];
+    const std::string outputPath =
+        (argc == 3) ? argv[2] : "output.c";
+
+    std::ifstream input(sourcePath);
 
     if (!input) {
-        std::cerr << "Error: could not open file '"
-                  << argv[1] << "'\n";
+        std::cerr << "Error: could not open source file '"
+                  << sourcePath << "'\n";
         return 1;
     }
 
@@ -50,18 +39,63 @@ int main(int argc, char* argv[]) {
     );
 
     try {
+        // Stage 1: Lexical analysis
         Lexer lexer(source);
         std::vector<Token> tokens = lexer.tokenize();
 
+        // Stage 2: Parsing and AST construction
         Parser parser(tokens);
         std::unique_ptr<ASTNode> ast = parser.parse();
 
-        std::cout << "Parsing successful!\n";
-        std::cout << "Abstract Syntax Tree:\n";
-        printAST(ast.get());
+        // Stage 3: Semantic analysis
+        SemanticAnalyzer semanticAnalyzer;
+        semanticAnalyzer.analyze(*ast);
+
+        // Stage 4: TAC generation
+        TACGenerator tacGenerator;
+        TACProgram tac = tacGenerator.generate(*ast);
+
+        // Stage 5: TAC optimization
+        Optimizer optimizer;
+        TACProgram optimizedTac = optimizer.optimize(tac);
+
+        // Stage 6: C code generation
+        CCodeGenerator codeGenerator;
+        std::string generatedC =
+            codeGenerator.generate(optimizedTac);
+
+        // Stage 7: Write generated C code
+        std::ofstream output(outputPath);
+
+        if (!output) {
+            std::cerr << "Error: could not create output file '"
+                      << outputPath << "'\n";
+            return 1;
+        }
+
+        output << generatedC;
+
+        if (!output) {
+            std::cerr << "Error: failed to write output file '"
+                      << outputPath << "'\n";
+            return 1;
+        }
+
+        output.close();
+
+        if (!output) {
+            std::cerr << "Error: failed to close output file '"
+                      << outputPath << "'\n";
+            return 1;
+        }
+
+        std::cout << "Compilation successful!\n";
+        std::cout << "Generated C file: "
+                  << outputPath << '\n';
 
     } catch (const std::exception& error) {
-        std::cerr << error.what() << '\n';
+        std::cerr << "Compilation failed: "
+                  << error.what() << '\n';
         return 1;
     }
 

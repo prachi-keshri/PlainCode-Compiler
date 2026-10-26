@@ -15,3 +15,7 @@ debug/
 
 # Generated compiler output
 output/
+
+# Local test executables
+/lexer_test
+/plaincode

@@ -4,6 +4,50 @@
 
 PlainCode: Design and Implementation of an English-Like Programming Language Compiler
 
+## Quick Start — Build and Run
+
+Run the sample PlainCode program in four simple steps.
+
+**Requirements:** Ubuntu/WSL with GCC, G++, and GNU Make installed.
+
+**Step 1: Clone the repository**
+
+```bash
+git clone https://github.com/prachi-keshri/PlainCode-Compiler.git
+cd PlainCode-Compiler
+```
+
+**Step 2: Build the compiler**
+
+```bash
+make
+```
+
+**Step 3: Generate C code from the sample program**
+
+```bash
+./build/plaincode examples/demo.plain output.c
+```
+
+**Step 4: Compile and run the generated C code**
+
+```bash
+gcc -std=c11 output.c -o program
+./program
+```
+
+**Expected output:**
+
+```text
+30
+```
+
+The PlainCode compiler translates the sample `.plain` program into C code. GCC then compiles the generated C code into an executable.
+
+For the complete architecture, language features, compiler phases, and testing details, see the sections below.
+
+---
+
 ## Overview
 
 PlainCode is an English-like programming language compiler developed using C++17.
@@ -149,9 +193,17 @@ make clean
 
 ## Running a PlainCode Program
 
-### Step 1: Create a source file
+The repository includes a ready-to-run sample program at `examples/demo.plain`.
 
-Create a file named `demo.plain`:
+**Step 1: View the sample source code**
+
+Open `examples/demo.plain` in VS Code or run:
+
+```bash
+cat examples/demo.plain
+```
+
+The program contains:
 
 ```text
 SET a TO 10
@@ -159,40 +211,43 @@ SET b TO 20
 DISPLAY a + b
 ```
 
-### Step 2: Generate C code
+**Step 2: Generate C code**
 
-Run:
+After building the compiler with `make`, run:
 
 ```bash
-./build/plaincode demo.plain output.c
+./build/plaincode examples/demo.plain output.c
 ```
 
-Expected message:
+This translates the PlainCode source file into C and saves it as `output.c`.
 
-```text
-Compilation successful!
-Generated C file: output.c
+**Step 3: View the generated C code (optional)**
+
+```bash
+cat output.c
 ```
 
-If no C output filename is provided, the compiler uses `output.c`.
-
-### Step 3: Compile the generated C code
+**Step 4: Compile the generated C program**
 
 ```bash
 gcc -std=c11 output.c -o program
 ```
 
-### Step 4: Run the executable
+**Step 5: Run the executable**
 
 ```bash
 ./program
 ```
 
-Expected output:
+**Expected output:**
 
 ```text
 30
 ```
+
+**Note:** The PlainCode compiler generates C source code. GCC compilation and execution are performed separately.
+
+---
 
 ## Compiler Phases
 

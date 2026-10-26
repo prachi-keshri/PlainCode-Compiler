@@ -1,0 +1,3 @@
+SET a TO 10
+SET b TO 20
+DISPLAY a + b

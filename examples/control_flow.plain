@@ -1,0 +1,10 @@
+SET count TO 1
+WHILE count <= 5 DO
+    DISPLAY count
+    SET count TO count + 1
+ENDWHILE
+IF count == 6 THEN
+    DISPLAY 100
+ELSE
+    DISPLAY 0
+ENDIF

@@ -1,0 +1,11 @@
+
+FUNCTION factorial(n)
+    IF n <= 1 THEN
+        RETURN 1
+    ELSE
+        RETURN n * factorial(n - 1)
+    ENDIF
+ENDFUNCTION
+
+SET result TO factorial(5)
+DISPLAY result

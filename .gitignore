@@ -19,3 +19,9 @@ output/
 # Local test executables
 /lexer_test
 /plaincode
+
+# Generated C files
+/output.c
+/control_flow.c
+/functions_and_types.c
+/recursion.c

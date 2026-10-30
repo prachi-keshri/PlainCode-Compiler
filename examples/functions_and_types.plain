@@ -1,0 +1,12 @@
+FUNCTION add(a, b)
+    SET total TO a + b
+    RETURN total
+ENDFUNCTION
+
+SET answer TO add(12, 30)
+SET price TO 19.95
+SET tax TO 1.5
+SET message TO "PlainCode supports strings and decimals"
+DISPLAY answer
+DISPLAY price + tax
+DISPLAY message
